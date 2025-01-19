@@ -1,6 +1,8 @@
 import { authEnv } from '@/config/auth';
 import type { OAuthConfig } from 'next-auth/providers';
 
+import { CommonProviderConfig } from './sso.config';
+
 interface FeishuProfile {
   avatar_url: string;
   avatar_thumb: string;
@@ -16,24 +18,33 @@ interface FeishuProfile {
   tenant_key: string;
 }
 
-export function FeishuProvider(options: { clientId: string; clientSecret: string }): OAuthConfig<FeishuProfile> {
-  return {
+interface FeishuClient {
+  client_id: string;
+  client_secret: string;
+}
+
+interface FeishuTokens {
+  access_token: string;
+}
+
+const provider = {
+  id: 'feishu',
+  provider: {
     id: 'feishu',
     name: 'Feishu',
     type: 'oauth',
     authorization: {
       params: {
-        app_id: options.clientId,
+        app_id: authEnv.AUTH_FEISHU_ID,
         redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/feishu`,
         scope: 'contact:user.employee,contact:user.base,email',
         response_type: 'code',
       },
       url: 'https://open.feishu.cn/open-apis/authen/v1/authorize',
     },
-    clientId: options.clientId,
-    clientSecret: options.clientSecret,
+    clientId: authEnv.AUTH_FEISHU_ID,
+    clientSecret: authEnv.AUTH_FEISHU_SECRET,
     profile(profile: FeishuProfile) {
-      // 在这里可以添加域名验证
       const email = profile.enterprise_email || profile.email;
       const allowedDomain = authEnv.AUTH_FEISHU_ALLOWED_DOMAIN;
 
@@ -50,7 +61,7 @@ export function FeishuProvider(options: { clientId: string; clientSecret: string
     },
     token: {
       url: 'https://open.feishu.cn/open-apis/auth/v3/app_access_token/internal',
-      async request({ client }: { client: { client_id: string; client_secret: string } }) {
+      async request({ client }: { client: FeishuClient }) {
         const response = await fetch(
           'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
           {
@@ -73,7 +84,7 @@ export function FeishuProvider(options: { clientId: string; clientSecret: string
     },
     userinfo: {
       url: 'https://open.feishu.cn/open-apis/authen/v1/user_info',
-      async request({ tokens }: { tokens: { access_token: string } }) {
+      async request({ tokens }: { tokens: FeishuTokens }) {
         const response = await fetch(
           'https://open.feishu.cn/open-apis/authen/v1/user_info',
           {
@@ -87,5 +98,7 @@ export function FeishuProvider(options: { clientId: string; clientSecret: string
         return data.data;
       },
     },
-  };
-}
+  } as OAuthConfig<FeishuProfile>,
+};
+
+export default provider;

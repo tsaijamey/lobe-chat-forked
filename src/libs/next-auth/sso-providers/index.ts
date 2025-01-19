@@ -4,7 +4,7 @@ import Authentik from './authentik';
 import AzureAD from './azure-ad';
 import Casdoor from './casdoor';
 import CloudflareZeroTrust from './cloudflare-zero-trust';
-import { FeishuProvider } from './feishu';
+import Feishu from './feishu';
 import GenericOIDC from './generic-oidc';
 import Github from './github';
 import Logto from './logto';
@@ -13,17 +13,17 @@ import WeChat from './wechat';
 import Zitadel from './zitadel';
 
 export const ssoProviders = [
-  Auth0,
-  Authentik,
-  AzureAD,
-  GenericOIDC,
-  Github,
-  Zitadel,
-  Authelia,
-  Logto,
-  CloudflareZeroTrust,
-  Casdoor,
-  MicrosoftEntraID,
-  WeChat,
-  FeishuProvider,
+  // Auth0,
+  // Authentik,
+  // AzureAD,
+  // GenericOIDC,
+  // Github,
+  // Zitadel,
+  Feishu,
+  // Authelia,
+  // CloudflareZeroTrust,
+  // Logto,
+  // MicrosoftEntraID,
+  // WeChat,
+  // Casdoor,
 ];
