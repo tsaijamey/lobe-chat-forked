@@ -79,3 +79,7 @@ robots.txt
 *.sqlite3
 *.db
 vertex-ai-key.json
+
+
+# 计划删除的文件
+.drop
