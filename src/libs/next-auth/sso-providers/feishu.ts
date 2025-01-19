@@ -16,74 +16,76 @@ interface FeishuProfile {
   tenant_key: string;
 }
 
-export const FeishuProvider: OAuthConfig<FeishuProfile> = {
-  id: 'feishu',
-  name: 'Feishu',
-  type: 'oauth',
-  authorization: {
-    params: {
-      app_id: authEnv.AUTH_FEISHU_ID,
-      redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/feishu`,
-      scope: 'contact:user.employee,contact:user.base,email',
-      response_type: 'code',
+export function FeishuProvider(options: { clientId: string; clientSecret: string }): OAuthConfig<FeishuProfile> {
+  return {
+    id: 'feishu',
+    name: 'Feishu',
+    type: 'oauth',
+    authorization: {
+      params: {
+        app_id: options.clientId,
+        redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/feishu`,
+        scope: 'contact:user.employee,contact:user.base,email',
+        response_type: 'code',
+      },
+      url: 'https://open.feishu.cn/open-apis/authen/v1/authorize',
     },
-    url: 'https://open.feishu.cn/open-apis/authen/v1/authorize',
-  },
-  clientId: authEnv.AUTH_FEISHU_ID,
-  clientSecret: authEnv.AUTH_FEISHU_SECRET,
-  profile(profile: FeishuProfile) {
-    // 在这里可以添加域名验证
-    const email = profile.enterprise_email || profile.email;
-    const allowedDomain = authEnv.AUTH_FEISHU_ALLOWED_DOMAIN;
+    clientId: options.clientId,
+    clientSecret: options.clientSecret,
+    profile(profile: FeishuProfile) {
+      // 在这里可以添加域名验证
+      const email = profile.enterprise_email || profile.email;
+      const allowedDomain = authEnv.AUTH_FEISHU_ALLOWED_DOMAIN;
 
-    if (allowedDomain && !email?.endsWith(`@${allowedDomain}`)) {
-      throw new Error(`Unauthorized email domain. Only @${allowedDomain} is allowed.`);
-    }
-
-    return {
-      id: profile.union_id || profile.user_id,
-      name: profile.name,
-      email: email,
-      image: profile.avatar_url || profile.avatar_big,
-    };
-  },
-  token: {
-    url: 'https://open.feishu.cn/open-apis/auth/v3/app_access_token/internal',
-    async request({ client }: { client: { client_id: string; client_secret: string } }) {
-      const response = await fetch(
-        'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-          body: JSON.stringify({
-            app_id: client.client_id,
-            app_secret: client.client_secret,
-          }),
-        },
-      );
-      const data = await response.json();
+      if (allowedDomain && !email?.endsWith(`@${allowedDomain}`)) {
+        throw new Error(`Unauthorized email domain. Only @${allowedDomain} is allowed.`);
+      }
 
       return {
-        tokens: { access_token: data.tenant_access_token },
+        id: profile.union_id || profile.user_id,
+        name: profile.name,
+        email: email,
+        image: profile.avatar_url || profile.avatar_big,
       };
     },
-  },
-  userinfo: {
-    url: 'https://open.feishu.cn/open-apis/authen/v1/user_info',
-    async request({ tokens }: { tokens: { access_token: string } }) {
-      const response = await fetch(
-        'https://open.feishu.cn/open-apis/authen/v1/user_info',
-        {
-          headers: {
-            Authorization: `Bearer ${tokens.access_token}`,
-            'Content-Type': 'application/json',
+    token: {
+      url: 'https://open.feishu.cn/open-apis/auth/v3/app_access_token/internal',
+      async request({ client }: { client: { client_id: string; client_secret: string } }) {
+        const response = await fetch(
+          'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            method: 'POST',
+            body: JSON.stringify({
+              app_id: client.client_id,
+              app_secret: client.client_secret,
+            }),
           },
-        },
-      );
-      const data = await response.json();
-      return data.data;
+        );
+        const data = await response.json();
+
+        return {
+          tokens: { access_token: data.tenant_access_token },
+        };
+      },
     },
-  },
-};
+    userinfo: {
+      url: 'https://open.feishu.cn/open-apis/authen/v1/user_info',
+      async request({ tokens }: { tokens: { access_token: string } }) {
+        const response = await fetch(
+          'https://open.feishu.cn/open-apis/authen/v1/user_info',
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+        const data = await response.json();
+        return data.data;
+      },
+    },
+  };
+}
