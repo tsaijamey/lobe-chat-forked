@@ -2,18 +2,20 @@ import { authEnv } from '@/config/auth';
 import type { OAuthConfig, OAuthUserConfig } from 'next-auth/providers';
 
 interface FeishuProfile {
+  name: string;
+  en_name: string;
   avatar_url: string;
   avatar_thumb: string;
   avatar_middle: string;
   avatar_big: string;
-  user_id: string;
-  union_id: string;
   open_id: string;
-  en_name: string;
-  name: string;
+  union_id: string;
   email: string;
   enterprise_email: string;
+  user_id: string;
+  mobile?: string;
   tenant_key: string;
+  employee_no?: string;
 }
 
 interface FeishuTokens {
@@ -58,15 +60,15 @@ const feishuProvider = (config: OAuthUserConfig<FeishuProfile>): OAuthConfig<Fei
     async request({ tokens }: { tokens: FeishuTokens }) {
       const response = await fetch('https://open.feishu.cn/open-apis/authen/v1/user_info', {
         headers: {
-          Authorization: `Bearer ${tokens.access_token}`,
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokens.access_token}`,
+          'Content-Type': 'application/json; charset=utf-8',
         },
       });
 
       const userInfo = (await response.json()) as FeishuUserInfoResponse;
 
-      if (!userInfo.data || !userInfo.data.open_id) {
-        throw new Error('Invalid user info received: ' + JSON.stringify(userInfo));
+      if (userInfo.code !== 0 || !userInfo.data) {
+        throw new Error(`Failed to get user info: ${userInfo.msg}`);
       }
 
       return userInfo.data;
@@ -82,10 +84,11 @@ const feishuProvider = (config: OAuthUserConfig<FeishuProfile>): OAuthConfig<Fei
 
     return {
       id: profile.open_id,
-      name: profile.name || profile.open_id,
       email: email,
-      image: profile.avatar_url || profile.avatar_big,
+      avatar: profile.avatar_url || profile.avatar_big,
       firstName: profile.name,
+      fullName: profile.name,
+      username: profile.en_name || profile.name,
       providerAccountId: profile.open_id,
     };
   },
