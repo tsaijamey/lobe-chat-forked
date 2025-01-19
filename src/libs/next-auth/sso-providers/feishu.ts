@@ -40,7 +40,8 @@ const feishuProvider = (config: OAuthUserConfig<FeishuProfile>): OAuthConfig<Fei
       app_id: authEnv.AUTH_FEISHU_ID,
       redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/feishu`,
       response_type: 'code',
-      state: process.env.NEXTAUTH_SECRET // 使用 NextAuth 的 secret 作为 state
+      state: process.env.NEXTAUTH_SECRET,
+      scope: '',  // 显式设置为空字符串，防止 NextAuth 添加默认 scope
     },
   },
   token: {
