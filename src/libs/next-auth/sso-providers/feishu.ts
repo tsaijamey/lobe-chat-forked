@@ -37,7 +37,7 @@ const provider = {
       params: {
         app_id: authEnv.AUTH_FEISHU_ID,
         redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/feishu`,
-        scope: 'email profile openid',
+        scope: 'email profile open_id',
         response_type: 'code',
       },
       url: 'https://open.feishu.cn/open-apis/authen/v1/authorize',
