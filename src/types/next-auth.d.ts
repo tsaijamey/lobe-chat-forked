@@ -5,6 +5,8 @@ declare module 'next-auth' {
    * Returned by `useSession`, `auth`, contains information about the active session.
    */
   interface Session {
+    provider?: string;
+    providerAccountId?: string;
     user: {
       firstName?: string;
     } & DefaultSession['user'];
@@ -22,5 +24,7 @@ declare module '@auth/core/jwt' {
   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
     userId: string;
+    provider?: string;
+    providerAccountId?: string;
   }
 }

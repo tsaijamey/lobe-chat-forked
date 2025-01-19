@@ -20,14 +20,21 @@ export const initSSOProviders = () => {
 export default {
   callbacks: {
     // Note: Data processing order of callback: authorize --> jwt --> session
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       // ref: https://authjs.dev/guides/extending-the-session#with-jwt
       if (user?.id) {
-        token.userId = user?.id;
+        token.userId = user.id;
+      }
+      // 保存 provider 信息到 token
+      if (account) {
+        token.provider = account.provider;
+        token.providerAccountId = account.providerAccountId;
       }
       return token;
     },
     async session({ session, token, user }) {
+      console.log('Session Callback:', { session, token, user });
+      
       if (session.user) {
         // ref: https://authjs.dev/guides/extending-the-session#with-database
         if (user) {
@@ -35,13 +42,25 @@ export default {
         } else {
           session.user.id = (token.userId ?? session.user.id) as string;
         }
+        // 添加 provider 信息到 session
+        if (token.provider) {
+          session.provider = token.provider as string;
+        }
+        if (token.providerAccountId) {
+          session.providerAccountId = token.providerAccountId as string;
+        }
       }
       return session;
     },
+    async signIn({ user, account, profile }) {
+      console.log('SignIn Callback:', { user, account, profile });
+      return true;
+    },
   },
-  debug: authEnv.NEXT_AUTH_DEBUG,
+  debug: true, // 开启调试模式
   pages: {
     error: '/next-auth/error',
+    signIn: '/next-auth/signin',
   },
   providers: initSSOProviders(),
   secret: authEnv.NEXT_AUTH_SECRET,
