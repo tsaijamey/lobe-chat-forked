@@ -36,10 +36,39 @@ declare global {
       AUTHENTIK_CLIENT_SECRET?: string;
       AUTHENTIK_ISSUER?: string;
 
+      // AUTHELIA
+      AUTHELIA_CLIENT_ID?: string;
+      AUTHELIA_CLIENT_SECRET?: string;
+      AUTHELIA_ISSUER?: string;
+
+      // Cloudflare Zero Trust
+      CLOUDFLARE_ZERO_TRUST_CLIENT_ID?: string;
+      CLOUDFLARE_ZERO_TRUST_CLIENT_SECRET?: string;
+      CLOUDFLARE_ZERO_TRUST_ISSUER?: string;
+
+      // Generic OIDC
+      GENERIC_OIDC_CLIENT_ID?: string;
+      GENERIC_OIDC_CLIENT_SECRET?: string;
+      GENERIC_OIDC_ISSUER?: string;
+
       // ZITADEL
       ZITADEL_CLIENT_ID?: string;
       ZITADEL_CLIENT_SECRET?: string;
       ZITADEL_ISSUER?: string;
+
+      // LOGTO
+      LOGTO_CLIENT_ID?: string;
+      LOGTO_CLIENT_SECRET?: string;
+      LOGTO_ISSUER?: string;
+      LOGTO_WEBHOOK_SIGNING_KEY?: string;
+
+      // Feishu
+      AUTH_FEISHU_ID?: string;
+      AUTH_FEISHU_SECRET?: string;
+      AUTH_FEISHU_ALLOWED_DOMAIN?: string;
+
+      // Casdoor
+      CASDOOR_WEBHOOK_SECRET?: string;
     }
   }
 }
@@ -205,6 +234,11 @@ export const getAuthConfig = () => {
       LOGTO_ISSUER: z.string().optional(),
       LOGTO_WEBHOOK_SIGNING_KEY: z.string().optional(),
 
+      // Feishu
+      AUTH_FEISHU_ID: z.string().optional(),
+      AUTH_FEISHU_SECRET: z.string().optional(),
+      AUTH_FEISHU_ALLOWED_DOMAIN: z.string().optional(),
+
       // Casdoor
       CASDOOR_WEBHOOK_SECRET: z.string().optional(),
     },
@@ -266,6 +300,11 @@ export const getAuthConfig = () => {
       LOGTO_CLIENT_SECRET: process.env.LOGTO_CLIENT_SECRET,
       LOGTO_ISSUER: process.env.LOGTO_ISSUER,
       LOGTO_WEBHOOK_SIGNING_KEY: process.env.LOGTO_WEBHOOK_SIGNING_KEY,
+
+      // Feishu
+      AUTH_FEISHU_ID: process.env.AUTH_FEISHU_ID,
+      AUTH_FEISHU_SECRET: process.env.AUTH_FEISHU_SECRET,
+      AUTH_FEISHU_ALLOWED_DOMAIN: process.env.AUTH_FEISHU_ALLOWED_DOMAIN,
 
       // Casdoor
       CASDOOR_WEBHOOK_SECRET: process.env.CASDOOR_WEBHOOK_SECRET,
