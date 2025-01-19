@@ -102,6 +102,17 @@ Allow: /
 Sitemap: ${this._generateSitemapLink('/sitemap.xml')}
     `.trim();
   }
+
+  getIndex(): string {
+    const now = new Date().toISOString();
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${this._generateSitemapLink('/sitemap.xml')}</loc>
+    <lastmod>${now}</lastmod>
+  </sitemap>
+</sitemapindex>`;
+  }
 }
 
 export const sitemapModule = new Sitemap();
